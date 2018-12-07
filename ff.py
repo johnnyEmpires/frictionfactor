@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 
 # this code runs on python3.6!
-
-
 import math
 import random
 import time
