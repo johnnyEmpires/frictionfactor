@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # this code runs on python3.6!
-# modified version!!!!
+
 
 import math
 import random
