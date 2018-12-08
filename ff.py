@@ -31,7 +31,7 @@ def fcalc(e, d, re):
 			#print (f"the relative roughness is {format(E, '.10f')}, flow is laminar, reynolds number is {re}")
 			return laminar_flow_ffactor(re)
 
-		elif re > 2300:
+		elif re > 10000:
 			return newton_method(E, re)
 
 
@@ -98,28 +98,23 @@ def newton_method(E, re):
 
 	calcF = 1 / x**2
 	counter = 0							# used to trace number of iterations
-	while True:							# keep calculating until solution is found
+	while y != float(0):							# keep calculating until solution is found
 	#for x in range(1000000):
-		time.sleep(2)
+		time.sleep(0.1)
 
-		if y == 0:
-			# when root is found, return the corresponding values
-			return  round(calcF, 10), y, counter
+		# dont stop iterating until root is found
+		counter += 1
+		y = _root_calc(E, re, x)
+		m = _slope_calc(E, re, x)
+		x = x - (y / m)				# find next value
+		calcF = 1 / x**2
 
-		else:
-			# dont stop iterating until root is found
+		# for testing
+		print (f"counter[{counter}]...y: {y}, m: {m}, x: {x}, friction factor: {calcF}")
 
-			counter += 1
-			y = _root_calc(E, re, x)
-			m = _slope_calc(E, re, x)
-			x = x - (y / m)				# find next value
-			calcF = 1 / x**2
-
-			# for testing
-			print (f"counter[{counter}]...y: {y}, m: {m}, x: {x}, friction factor: {calcF}")
-
-			# return answer after testing
-			#print (f"calculating....{counter}, {calcF}, {y}")
+		# return answer after testing
+		#print (f"calculating....{counter}, {calcF}, {y}")
+	return  round(calcF, 10), y, counter
 
 
 if __name__ == '__main__':
@@ -129,9 +124,8 @@ if __name__ == '__main__':
 
 	E = round(e/d, 8)
 
-	result = fcalc(e, d, re)
+	#result = fcalc(e, d, re)
 	#print (f"results : {result}")
 
-	# for idx in range(600, 1000000000):
-	# 	if idx % 100:
-	# 		print (idx, fcalc(e, d, idx))
+	for idx in range(600, 1000000000, 100):
+		print (idx, fcalc(e, d, idx))
