@@ -4,17 +4,20 @@
 import math
 import random
 import time
+import csv
 
 
 def fcalc(e, d, re):
 	'''
+	module for computing friction factor
+	incremental search is used to find the zero of the equation, see non_laminar_ffactor function
+
 	e : pipe roughness, mm
 	d : pipe diameter, mm
 	re : reynolds number
 
-	module for computing friction factor
-	incremental search is used to find the zero of the equation, see non_laminar_ffactor function
 	'''
+	
 	# E = relative roughness, e/d, return up to 8th decimal places
 	E = round(e/d, 8)
 	
@@ -32,14 +35,19 @@ def fcalc(e, d, re):
 			return laminar_flow_ffactor(re)
 
 		elif re > 2300:
-			return newton_method(E, re)
+			# transition flow
+			return transition_friction_factor(E, re)
+
+		elif re > 4000:
+			# turbulent flow
+			return turb_flow_calc(E, re)
+
 
 
 def laminar_flow_ffactor(re):
 	# laminar flow
 	# under this condition use the hagen-poisseuille equation
-	frictionFactor = round(64 / re, 10)
-	return frictionFactor, 0, 0
+	return round(64 / re, 10)
 
 
 def ffactor_smooth_pipes(re):
@@ -91,7 +99,19 @@ def _slope_calc(E, re, i):
 	return m
 
 
-def newton_method(E, re):
+def transition_friction_factor(E = None, reynolds = None):
+	# call this function to calculate the friction factor for transition flows
+	# E = relative roughness (e / d), pipe roughness / pipe diameter
+	# reynolds = reynolds number
+
+	# swamee-jain eqn to calculate friction factor
+	CALCFRICTIONFACTOR = 0.25 / (math.log10(E/3.7) + (5.74 / (reynolds**0.9)))**2
+	return CALCFRICTIONFACTOR
+
+
+def turb_flow_calc(E, re):
+	# use colebrook-white eqn to calculate the friction factor
+	# newton method to calculate the zero of the eqn
 
 	x = _initial_guess_calc(E, re)		# initial value to start calculation
 	y = _root_calc(E, re, x)			# use same eqn to find value of x
@@ -100,7 +120,7 @@ def newton_method(E, re):
 	counter = 0							# used to trace number of iterations
 	while True:							# keep calculating until solution is found
 	#for x in range(1000000):
-		time.sleep(2)
+		#time.sleep(0.1)
 
 		if y == 0:
 			# when root is found, return the corresponding values
@@ -117,21 +137,33 @@ def newton_method(E, re):
 
 			# for testing
 			print (f"counter[{counter}]...y: {y}, m: {m}, x: {x}, friction factor: {calcF}")
+			#print (f"counter[{counter}]...y: {y}, m: {m}, x: {x}, friction factor: {calcF}")
 
 			# return answer after testing
 			#print (f"calculating....{counter}, {calcF}, {y}")
 
 
-if __name__ == '__main__':
-	e = 0.025
+
+def test():
+	e = 0.0001
 	d = 1
 	re = 2310
 
-	E = round(e/d, 8)
+	xVAL = []
+	yVAL = []
 
-	result = fcalc(e, d, re)
-	#print (f"results : {result}")
+	testCSV = csv.writer(open("test.csv", "w"))
 
-	# for idx in range(600, 1000000000):
-	# 	if idx % 100:
-	# 		print (idx, fcalc(e, d, idx))
+	for reynold in range(600, 1000000):
+		if reynold % 100:
+			factor = fcalc(e, d, reynold)
+			xVAL = reynold
+			yVAL = factor
+			testCSV.writerow([xVAL, yVAL])
+			#print (reynold, factor)
+
+	print ("end of calculation")
+
+
+if __name__ == '__main__':
+	test()
