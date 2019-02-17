@@ -34,7 +34,6 @@ def fcalc(e, d, re):
 			#print (f"the relative roughness is {format(E, '.10f')}, flow is laminar, reynolds number is {re}")
 			return laminar_flow_ffactor(re)
 
-<<<<<<< HEAD
 		elif re > 2300:
 			# transition flow
 			return transition_friction_factor(E, re)
@@ -43,10 +42,6 @@ def fcalc(e, d, re):
 			# turbulent flow
 			return turb_flow_calc(E, re)
 
-=======
-		elif re > 10000:
-			return newton_method(E, re)
->>>>>>> 6943398f1f87e0ece5c8f15276056492c5facd70
 
 
 def laminar_flow_ffactor(re):
@@ -123,33 +118,29 @@ def turb_flow_calc(E, re):
 
 	calcF = 1 / x**2
 	counter = 0							# used to trace number of iterations
-	while y != float(0):							# keep calculating until solution is found
+	while True:							# keep calculating until solution is found
 	#for x in range(1000000):
-<<<<<<< HEAD
 		#time.sleep(0.1)
-=======
-		time.sleep(0.1)
->>>>>>> 6943398f1f87e0ece5c8f15276056492c5facd70
 
-		# dont stop iterating until root is found
-		counter += 1
-		y = _root_calc(E, re, x)
-		m = _slope_calc(E, re, x)
-		x = x - (y / m)				# find next value
-		calcF = 1 / x**2
+		if y == 0:
+			# when root is found, return the corresponding values
+			return  round(calcF, 10), y, counter
 
-<<<<<<< HEAD
+		else:
+			# dont stop iterating until root is found
+
+			counter += 1
+			y = _root_calc(E, re, x)
+			m = _slope_calc(E, re, x)
+			x = x - (y / m)				# find next value
+			calcF = 1 / x**2
+
 			# for testing
 			print (f"counter[{counter}]...y: {y}, m: {m}, x: {x}, friction factor: {calcF}")
 			#print (f"counter[{counter}]...y: {y}, m: {m}, x: {x}, friction factor: {calcF}")
-=======
-		# for testing
-		print (f"counter[{counter}]...y: {y}, m: {m}, x: {x}, friction factor: {calcF}")
->>>>>>> 6943398f1f87e0ece5c8f15276056492c5facd70
 
-		# return answer after testing
-		#print (f"calculating....{counter}, {calcF}, {y}")
-	return  round(calcF, 10), y, counter
+			# return answer after testing
+			#print (f"calculating....{counter}, {calcF}, {y}")
 
 
 
@@ -161,7 +152,6 @@ def test():
 	xVAL = []
 	yVAL = []
 
-<<<<<<< HEAD
 	testCSV = csv.writer(open("test.csv", "w"))
 
 	for reynold in range(600, 1000000):
@@ -177,10 +167,3 @@ def test():
 
 if __name__ == '__main__':
 	test()
-=======
-	#result = fcalc(e, d, re)
-	#print (f"results : {result}")
-
-	for idx in range(600, 1000000000, 100):
-		print (idx, fcalc(e, d, idx))
->>>>>>> 6943398f1f87e0ece5c8f15276056492c5facd70
